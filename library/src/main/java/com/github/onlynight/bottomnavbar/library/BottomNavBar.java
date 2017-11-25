@@ -72,6 +72,9 @@ public class BottomNavBar extends ViewGroup {
         }
 
         this.mAdapter = adapter;
+        if (mAdapter != null) {
+            mAdapter.registerDataSetObserver(mDataSetObserver);
+        }
 
         addAdapterView();
     }
@@ -79,8 +82,6 @@ public class BottomNavBar extends ViewGroup {
     private void addAdapterView() {
         removeAllViews();
         if (mAdapter != null) {
-            mAdapter.registerDataSetObserver(mDataSetObserver);
-
             for (int i = 0; i < mAdapter.getCount(); i++) {
                 addView(mAdapter.getView(i, null, this));
             }
