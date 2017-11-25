@@ -42,7 +42,7 @@ public class BottomNavBar extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (mAdapter != null) {
+        if (mAdapter != null && mAdapter.getCount() > 0) {
             int width = getWidth();
             int height = getHeight();
 
