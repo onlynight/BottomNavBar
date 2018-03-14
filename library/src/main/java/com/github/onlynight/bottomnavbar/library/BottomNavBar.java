@@ -10,10 +10,12 @@ import android.widget.BaseAdapter;
 
 /**
  * Created by zhang on 2017/11/24.
+ * bottom nav bar view
  */
 
 public class BottomNavBar extends ViewGroup {
 
+    private OnItemSelectedListener mOnItemSelectedListener;
     private BaseAdapter mAdapter;
 
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
@@ -83,11 +85,50 @@ public class BottomNavBar extends ViewGroup {
         removeAllViews();
         if (mAdapter != null) {
             for (int i = 0; i < mAdapter.getCount(); i++) {
-                addView(mAdapter.getView(i, null, this));
+                final int index = i;
+                View view = mAdapter.getView(index, null, this);
+                view.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mOnItemSelectedListener != null) {
+                            mOnItemSelectedListener.onSelected(index);
+                        }
+                        setSelect(index);
+                    }
+                });
+                addView(view);
             }
 
             requestLayout();
         }
+    }
+
+    /**
+     * set select tab item
+     *
+     * @param position selected position
+     */
+    public void setSelect(int position) {
+        if (mAdapter != null && position < mAdapter.getCount()) {
+            View view;
+            for (int i = 0; i < mAdapter.getCount(); i++) {
+                view = getChildAt(i);
+                view.setSelected(position == i);
+            }
+        }
+    }
+
+    public void setOnItemSelectedListener(OnItemSelectedListener onItemSelectedListener) {
+        this.mOnItemSelectedListener = onItemSelectedListener;
+    }
+
+    /**
+     * on item selected listener
+     */
+    public interface OnItemSelectedListener {
+
+        void onSelected(int position);
+
     }
 
 }
