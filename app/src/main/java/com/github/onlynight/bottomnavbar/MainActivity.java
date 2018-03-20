@@ -24,7 +24,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavBar.OnIt
     }
 
     @Override
-    public void onSelected(int position) {
+    public void onTabSelected(int position) {
         Toast.makeText(this, "position = " + position, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onTabDoubleClick(int position) {
+        System.out.println("on item double click = " + position);
     }
 }

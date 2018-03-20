@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import java.util.Calendar;
+
 /**
  * Created by zhang on 2017/11/24.
  * bottom nav bar view
@@ -17,6 +19,7 @@ public class BottomNavBar extends ViewGroup {
 
     private OnItemSelectedListener mOnItemSelectedListener;
     private BaseAdapter mAdapter;
+    private long mDoubleClickBlank = 1000;
 
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
         @Override
@@ -41,6 +44,14 @@ public class BottomNavBar extends ViewGroup {
     @RequiresApi(21)
     public BottomNavBar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    public void setDoubleClickBlank(long doubleClickBlank) {
+        this.mDoubleClickBlank = doubleClickBlank;
+    }
+
+    public long getDoubleClickBlank() {
+        return mDoubleClickBlank;
     }
 
     @Override
@@ -90,10 +101,33 @@ public class BottomNavBar extends ViewGroup {
                 view.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (mOnItemSelectedListener != null) {
-                            mOnItemSelectedListener.onSelected(index);
+                        long time = Calendar.getInstance().getTime().getTime();
+                        Object tag = view.getTag();
+
+                        if (tag == null) {
+                            tag = new DoubleClickBean();
                         }
+
+                        if (mOnItemSelectedListener != null) {
+                            mOnItemSelectedListener.onTabSelected(index);
+                            if (tag instanceof DoubleClickBean) {
+                                if ((time - ((DoubleClickBean) tag).time) <= mDoubleClickBlank) {
+                                    if (((DoubleClickBean) tag).clickTimes >= 1) {
+                                        ((DoubleClickBean) tag).clickTimes = 0;
+                                        mOnItemSelectedListener.onTabDoubleClick(index);
+                                    } else {
+                                        ((DoubleClickBean) tag).clickTimes += 1;
+                                    }
+                                    ((DoubleClickBean) tag).time = 0;
+                                } else {
+                                    ((DoubleClickBean) tag).time = time;
+                                    ((DoubleClickBean) tag).clickTimes = 1;
+                                }
+                            }
+                        }
+
                         setSelect(index);
+                        view.setTag(tag);
                     }
                 });
                 addView(view);
@@ -127,7 +161,16 @@ public class BottomNavBar extends ViewGroup {
      */
     public interface OnItemSelectedListener {
 
-        void onSelected(int position);
+        void onTabSelected(int position);
+
+        void onTabDoubleClick(int position);
+
+    }
+
+    private static class DoubleClickBean {
+
+        public int clickTimes;
+        public long time;
 
     }
 
